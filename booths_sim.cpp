@@ -1,81 +1,138 @@
 #include <iostream>
-#include <iomanip>
 #include <bitset>
 #include <string>
+#include <vector>
+#include <cmath>
+#include <iomanip> // REQUIRED for tidy tables
+#include <emscripten/emscripten.h>
 
 using namespace std;
 
-// We use 4 bits for visualization (Range: -8 to +7)
-const int BITS = 4;
+// Helper to chop a 32-bit binary string down to 'n' bits
+string toBinary(int val, int n) {
+    string s = bitset<32>(val).to_string();
+    return s.substr(32 - n);
+}
 
-// Helper to print binary
-string toBinary(int n) {
-    return bitset<BITS>(n).to_string();
+string add(string a, string b) {
+    string res = "";
+    int s = 0;
+    int len = a.length();
+    for (int i = len - 1; i >= 0; i--) {
+        int bit1 = a[i] - '0';
+        int bit2 = b[i] - '0';
+        int sum = bit1 + bit2 + s;
+        res = to_string(sum % 2) + res;
+        s = sum / 2;
+    }
+    return res;
+}
+
+void asr(string &ac, string &q, int &qn1) {
+    int len = ac.length();
+    qn1 = q[len - 1] - '0'; 
+    for (int i = len - 1; i > 0; i--) q[i] = q[i - 1];
+    q[0] = ac[len - 1]; 
+    char msb = ac[0];
+    for (int i = len - 1; i > 0; i--) ac[i] = ac[i - 1];
+    ac[0] = msb; 
+}
+
+// FORMATTING FIX: Fixed width columns instead of tabs
+void printRow(int step, string ac, string q, int qn1, string op, int width) {
+    cout << left << setw(8) << step 
+         << setw(width) << ac 
+         << setw(width) << q 
+         << setw(8) << qn1 
+         << op << endl;
 }
 
 int main() {
-    cout << "--- BOOTH'S MULTIPLICATION SIMULATOR ---" << endl;
+    cout << "--- UNIVERSAL BOOTH'S SIMULATOR ---" << endl;
     
-    // Hardcoded inputs (Try 5 * -3)
-    // 5  = 0101
-    // -3 = 1101 (2's complement)
-    int M = 5;
-    int Q = -3;
-    
-    int A = 0;
-    int Q_minus_1 = 0;
-    
-    cout << "  M (Multiplicand) = " << M << " (" << toBinary(M) << ")" << endl;
-    cout << "  Q (Multiplier)   = " << Q << " (" << toBinary(Q) << ")" << endl;
-    cout << "--------------------------------------------------------" << endl;
-    cout << "| Step |    A     |    Q     | Q-1 | Operation       |" << endl;
-    cout << "|------|----------|----------|-----|-----------------|" << endl;
-    
-    cout << "| Init | " << toBinary(A) << "     | " << toBinary(Q) << "     |  " << Q_minus_1 << "  | Initial State   |" << endl;
+    // 1. INPUTS
+    int n = emscripten_run_script_int("parseInt(prompt('Step 1: Enter Number of Bits (N) [e.g. 4, 5, 8]:', '4'))");
+    if (isnan(n) || n < 2 || n > 32) n = 4;
 
-    for (int i = 0; i < BITS; i++) {
-        // 1. Check Q0 and Q-1
-        int Q0 = Q & 1; // Extract LSB
-        string op = "No Op           ";
+    int min_val = -pow(2, n-1);
+    int max_val = pow(2, n-1) - 1;
 
-        if (Q0 == 1 && Q_minus_1 == 0) {
-            // 10 -> Subtract M
-            A = A - M;
-            op = "A = A - M       ";
+    string promptM = "Step 2: Enter Multiplicand (M) [" + to_string(min_val) + " to " + to_string(max_val) + "]:";
+    string promptQ = "Step 3: Enter Multiplier (Q) [" + to_string(min_val) + " to " + to_string(max_val) + "]:";
+    
+    int m_in = emscripten_run_script_int(("parseInt(prompt('" + promptM + "', '5'))").c_str());
+    int q_in = emscripten_run_script_int(("parseInt(prompt('" + promptQ + "', '-3'))").c_str());
+
+    // 2. BINARY CONVERSION DISPLAY (Requested Feature)
+    string m = toBinary(m_in, n);
+    string q = toBinary(q_in, n);
+    string neg_m = toBinary(-m_in, n);
+    
+    cout << "----------------------------------------" << endl;
+    cout << "Decimal Inputs:" << endl;
+    cout << "  M  = " << m_in << endl;
+    cout << "  Q  = " << q_in << endl;
+    cout << endl;
+    cout << "Binary Equivalents (" << n << "-bit):" << endl;
+    cout << "  M  = " << m << endl;
+    cout << " -M  = " << neg_m << " (2's Complement)" << endl;
+    cout << "  Q  = " << q << endl;
+    cout << "----------------------------------------" << endl;
+
+    // 3. TABLE SETUP
+    string ac = "";
+    for(int k=0; k<n; k++) ac += "0";
+    int qn1 = 0;
+    
+    // Dynamic formatting: Column width depends on N (so it doesn't break for 8 bits)
+    int col_width = max(n + 4, 10); 
+
+    // Header
+    cout << left << setw(8) << "Step" 
+         << setw(col_width) << "AC" 
+         << setw(col_width) << "Q" 
+         << setw(8) << "Q-1" 
+         << "Operation" << endl;
+         
+    cout << string(8 + col_width*2 + 8 + 15, '-') << endl; // Separator line
+
+    printRow(0, ac, q, qn1, "Initialization", col_width);
+
+    for (int i = 0; i < n; i++) {
+        int q0 = q[n - 1] - '0';
+        
+        if (q0 == 1 && qn1 == 0) {
+            ac = add(ac, neg_m);
+            printRow(i + 1, ac, q, qn1, "A = A - M", col_width);
         }
-        else if (Q0 == 0 && Q_minus_1 == 1) {
-            // 01 -> Add M
-            A = A + M;
-            op = "A = A + M       ";
+        else if (q0 == 0 && qn1 == 1) {
+            ac = add(ac, m);
+            printRow(i + 1, ac, q, qn1, "A = A + M", col_width);
         }
-
-        // Handle 4-bit overflow for display (masking)
-        // Note: In C++, signed integers handle this logic natively, 
-        // but for display we strip the upper bits.
         
-        if (op != "No Op           ") {
-             cout << "|      | " << toBinary(A) << "     | " << toBinary(Q) << "     |  " << Q_minus_1 << "  | " << op << "|" << endl;
-        }
-
-        // 2. Arithmetic Shift Right (ASR)
-        // Logic: Shift A, Q, Q-1 as one block
-        
-        Q_minus_1 = Q & 1; // The bit falling off Q goes to Q-1
-        
-        // Handle the bit moving from A to Q
-        int A_LSB = A & 1;
-        Q = (Q >> 1) & 0x7fffffff; // Shift Q (Logic shift)
-        if (A_LSB) Q |= (1 << (BITS-1)); // Put A's LSB into Q's MSB
-
-        // Arithmetic Shift A (Preserve Sign)
-        int A_Sign = A & (1 << (BITS-1)); // Capture Sign Bit
-        A = (A >> 1); // Shift
-        if (A_Sign) A |= (1 << (BITS-1)); // Restore Sign Bit
-        
-        cout << "|  " << i+1 << "   | " << toBinary(A) << "     | " << toBinary(Q) << "     |  " << Q_minus_1 << "  | ASR (Shift)     |" << endl;
-        cout << "|------|----------|----------|-----|-----------------|" << endl;
+        asr(ac, q, qn1); 
+        printRow(i + 1, ac, q, qn1, "ASR (Shift)", col_width);
+        cout << endl; // Empty line between steps for clarity
     }
 
-    cout << "\nTrace Complete." << endl;
+    string resultStr = ac + q;
+    cout << string(8 + col_width*2 + 8 + 15, '-') << endl;
+    cout << "Final Result (Binary): " << resultStr << endl;
+    
+    // Decimal conversion
+    unsigned long resVal = 0;
+    unsigned long powerOfTwo = 1;
+    for(int i = resultStr.length()-1; i >= 0; i--) {
+        if(resultStr[i] == '1') resVal += powerOfTwo;
+        powerOfTwo *= 2;
+    }
+    long long finalDec = resVal;
+    long long max_pos_val = pow(2, 2*n - 1);
+    if (resVal >= max_pos_val) {
+        finalDec = (long long)resVal - (long long)pow(2, 2*n);
+    }
+    
+    cout << "Final Result (Decimal): " << finalDec << endl;
+    
     return 0;
 }
