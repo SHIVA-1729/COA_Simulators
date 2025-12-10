@@ -3,107 +3,216 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>COA Portfolio | Shiva</title>
+    <title>COA Simulators | Interactive Learning</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;500;700;800&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg-color: #121212;
-            --card-bg: #1e1e1e;
-            --accent: #00bcd4;
-            --text-main: #e0e0e0;
-            --text-muted: #a0a0a0;
+            --bg: #030712;
+            --primary: #818cf8;
+            --secondary: #6366f1;
+            --accent: #c084fc;
+            --glass: rgba(255, 255, 255, 0.05);
+            --border: rgba(255, 255, 255, 0.1);
+            --text: #f8fafc;
+            --text-dim: #94a3b8;
         }
+
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-main);
+            background-color: var(--bg);
+            color: var(--text);
+            font-family: 'Plus Jakarta Sans', sans-serif;
             margin: 0;
-            padding: 0;
+            overflow-x: hidden;
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.15) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(192, 132, 252, 0.15) 0px, transparent 50%);
+        }
+
+        /* Nav */
+        nav {
             display: flex;
-            flex-direction: column;
+            justify-content: space-between;
             align-items: center;
-            min-height: 100vh;
+            padding: 24px 8%;
+            backdrop-filter: blur(10px);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            border-bottom: 1px solid var(--border);
         }
-        header {
+        .logo { font-weight: 800; font-size: 1.2rem; letter-spacing: -0.5px; }
+        .logo span { color: var(--primary); }
+        .nav-link { color: var(--text-dim); text-decoration: none; font-size: 0.9rem; transition: 0.3s; }
+        .nav-link:hover { color: #fff; }
+
+        /* Hero Section */
+        .hero {
             text-align: center;
-            padding: 60px 20px;
+            padding: 100px 20px 60px;
+            max-width: 800px;
+            margin: 0 auto;
+            position: relative;
         }
-        h1 { margin: 0; font-size: 2.5rem; letter-spacing: 1px; }
-        .subtitle { color: var(--accent); font-weight: 500; margin-top: 10px; font-size: 1.1rem; }
         
-        .container {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 30px;
-            max-width: 1000px;
-            padding: 20px;
+        .badge {
+            display: inline-block;
+            padding: 6px 16px;
+            background: rgba(99, 102, 241, 0.1);
+            border: 1px solid var(--primary);
+            color: var(--primary);
+            border-radius: 50px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 24px;
+            animation: fadeIn 1s;
+        }
+
+        h1 {
+            font-size: 4rem;
+            line-height: 1.1;
+            margin: 0 0 24px;
+            letter-spacing: -2px;
+            background: linear-gradient(135deg, #fff 0%, #94a3b8 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: slideUp 0.8s ease-out;
+        }
+
+        .subtitle {
+            font-size: 1.25rem;
+            color: var(--text-dim);
+            line-height: 1.6;
+            margin-bottom: 40px;
+            animation: slideUp 1s ease-out;
+        }
+
+        /* Interactive Grid */
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 24px;
+            padding: 40px 8%;
+            max-width: 1200px;
+            margin: 0 auto;
         }
 
         .card {
-            background: var(--card-bg);
-            border-radius: 12px;
-            padding: 30px;
-            width: 280px;
-            text-align: center;
-            transition: transform 0.3s, box-shadow 0.3s;
-            border: 1px solid #333;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
-        }
-        .card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 20px rgba(0, 188, 212, 0.15);
-            border-color: var(--accent);
-        }
-        .card h3 { margin-top: 0; color: #fff; }
-        .card p { color: var(--text-muted); font-size: 0.9rem; line-height: 1.5; margin-bottom: 25px; }
-        
-        .btn {
-            display: inline-block;
-            padding: 10px 25px;
-            background-color: transparent;
-            color: var(--accent);
-            border: 2px solid var(--accent);
-            border-radius: 25px;
+            background: var(--glass);
+            border: 1px solid var(--border);
+            padding: 32px;
+            border-radius: 24px;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
             text-decoration: none;
-            font-weight: bold;
-            transition: all 0.3s;
-        }
-        .btn:hover {
-            background-color: var(--accent);
-            color: #121212;
+            display: block;
+            group: card;
         }
 
-        footer {
-            margin-top: auto;
-            padding: 20px;
-            color: #555;
-            font-size: 0.8rem;
+        .card:hover {
+            transform: translateY(-8px);
+            border-color: var(--primary);
+            background: rgba(99, 102, 241, 0.08);
+            box-shadow: 0 20px 40px -10px rgba(99, 102, 241, 0.2);
         }
+
+        .card h3 {
+            color: #fff;
+            margin: 16px 0 8px;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .card p {
+            color: var(--text-dim);
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+
+        .card-icon {
+            width: 48px; 
+            height: 48px;
+            background: linear-gradient(135deg, var(--bg), #1e293b);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            border: 1px solid var(--border);
+        }
+
+        .arrow {
+            position: absolute;
+            bottom: 32px;
+            right: 32px;
+            color: var(--primary);
+            opacity: 0;
+            transform: translateX(-10px);
+            transition: 0.3s;
+        }
+        .card:hover .arrow { opacity: 1; transform: translateX(0); }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 80px 0 40px;
+            color: var(--text-dim);
+            font-size: 0.9rem;
+            border-top: 1px solid var(--border);
+            margin-top: 80px;
+        }
+
+        /* Animations */
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
     </style>
 </head>
 <body>
 
-    <header>
-        <h1>Computer Architecture Simulators</h1>
-        <div class="subtitle">Winter Project Portfolio • C++ & WebAssembly</div>
-    </header>
+    <nav>
+        <div class="logo">COA<span>.Sim</span></div>
+        <a href="https://github.com/SHIVA-1729/COA_Simulators" class="nav-link">View Source</a>
+    </nav>
 
-    <div class="container">
-        <div class="card">
+    <div class="hero">
+        <div class="badge">Version 2.0 • Interactive Learning</div>
+        <h1>Master Architecture<br>Through Simulation.</h1>
+        <p class="subtitle">
+            Experience computer organization concepts vividly. 
+            No compilers required. Just pure, interactive logic running in your browser.
+        </p>
+    </div>
+
+    <div class="grid">
+        <a href="booth.html" class="card">
+            <div class="card-icon">✖️</div>
             <h3>Booth's Algorithm</h3>
-            <p>A simulation of signed binary multiplication using Booth's bit-pair recoding technique.</p>
-            <a href="booth.html" class="btn">Launch Simulator</a>
-        </div>
+            <p>Visualize signed binary multiplication with bit-pair recoding. Customize bit-width and trace every shift operation.</p>
+            <span class="arrow">→</span>
+        </a>
 
-        <div class="card">
-            <h3>Adder & Subtractor</h3>
-            <p>Visualizing binary addition and subtraction logic gates at the hardware level.</p>
-            <a href="adder.html" class="btn">Launch Simulator</a>
+        <a href="adder.html" class="card">
+            <div class="card-icon">⚡</div>
+            <h3>Universal Adder</h3>
+            <p>Hardware-level binary addition simulation. Analyze carry propagation, overflow flags, and gate-level logic.</p>
+            <span class="arrow">→</span>
+        </a>
+
+        <div class="card" style="opacity: 0.6; cursor: default;">
+            <div class="card-icon">🔒</div>
+            <h3>Cache Memory</h3>
+            <p>Associative mapping and LRU replacement policies. <br><em>(Coming in v2.1)</em></p>
         </div>
     </div>
 
     <footer>
-        <p>Built with Emscripten & C++ | Hosted on GitHub Pages</p>
+        <p>Engineered by Shiva • Powered by Emscripten & WebAssembly</p>
     </footer>
 
 </body>
