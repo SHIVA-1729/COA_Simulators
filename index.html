@@ -1,26 +1,116 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>COA Simulators - Shiva</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>COA Portfolio | Shiva</title>
     <style>
-        body { font-family: sans-serif; text-align: center; padding: 50px; background-color: #f4f4f4; }
-        h1 { color: #333; }
-        .container { background: white; max-width: 600px; margin: auto; padding: 20px; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
-        .btn { display: block; width: 80%; margin: 10px auto; padding: 15px; background: #007bff; color: white; text-decoration: none; border-radius: 5px; font-size: 18px; }
-        .btn:hover { background: #0056b3; }
-        p { color: #666; }
+        :root {
+            --bg-color: #121212;
+            --card-bg: #1e1e1e;
+            --accent: #00bcd4;
+            --text-main: #e0e0e0;
+            --text-muted: #a0a0a0;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+        header {
+            text-align: center;
+            padding: 60px 20px;
+        }
+        h1 { margin: 0; font-size: 2.5rem; letter-spacing: 1px; }
+        .subtitle { color: var(--accent); font-weight: 500; margin-top: 10px; font-size: 1.1rem; }
+        
+        .container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 30px;
+            max-width: 1000px;
+            padding: 20px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 30px;
+            width: 280px;
+            text-align: center;
+            transition: transform 0.3s, box-shadow 0.3s;
+            border: 1px solid #333;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 188, 212, 0.15);
+            border-color: var(--accent);
+        }
+        .card h3 { margin-top: 0; color: #fff; }
+        .card p { color: var(--text-muted); font-size: 0.9rem; line-height: 1.5; margin-bottom: 25px; }
+        
+        .btn {
+            display: inline-block;
+            padding: 10px 25px;
+            background-color: transparent;
+            color: var(--accent);
+            border: 2px solid var(--accent);
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+        .btn:hover {
+            background-color: var(--accent);
+            color: #121212;
+        }
+
+        footer {
+            margin-top: auto;
+            padding: 20px;
+            color: #555;
+            font-size: 0.8rem;
+        }
     </style>
 </head>
 <body>
-    <div class="container">
+
+    <header>
         <h1>Computer Architecture Simulators</h1>
-        <p>Created by Shiva</p>
-        <hr>
-        <p>Select a tool to launch the simulation:</p>
-        
-        <a href="booth.html" class="btn">Launch Booth's Multiplier</a>
-        <a href="adder.html" class="btn">Launch Adder Simulator</a>
-        <a href="cache.html" class="btn">Launch Cache Simulator</a>
+        <div class="subtitle">Winter Project Portfolio • C++ & WebAssembly</div>
+    </header>
+
+    <div class="container">
+        <div class="card">
+            <h3>Booth's Algorithm</h3>
+            <p>A simulation of signed binary multiplication using Booth's bit-pair recoding technique.</p>
+            <a href="booth.html" class="btn">Launch Simulator</a>
+        </div>
+
+        <div class="card">
+            <h3>Adder & Subtractor</h3>
+            <p>Visualizing binary addition and subtraction logic gates at the hardware level.</p>
+            <a href="adder.html" class="btn">Launch Simulator</a>
+        </div>
+
+        <div class="card">
+            <h3>Cache Memory</h3>
+            <p>Simulating Direct Mapping and Set Associative cache hits, misses, and replacement policies.</p>
+            <a href="cache.html" class="btn">Launch Simulator</a>
+        </div>
     </div>
+
+    <footer>
+        <p>Built with Emscripten & C++ | Hosted on GitHub Pages</p>
+    </footer>
+
 </body>
 </html>
